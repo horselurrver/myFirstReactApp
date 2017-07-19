@@ -14,7 +14,7 @@ export default class TodoApp extends React.Component {
   addTodo(task) {
     var arrayCopy = this.state.data.slice();
     arrayCopy.push({
-      taskText: 'Test Task',
+      taskText: task,
       completed: false
     });
     this.setState({
@@ -26,7 +26,7 @@ export default class TodoApp extends React.Component {
     return (
       <div style={{margin: '10%'}}>
         <div style={{width:'50%'}}>
-          <InputLine submit={() => this.addTodo()}/>
+          <InputLine submit={(task) => this.addTodo(task)}/>
           <br/>
           <TodoList data={this.state.data}/>
         </div>
