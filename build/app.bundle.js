@@ -9962,7 +9962,7 @@ var InputLine = function (_React$Component) {
       return _react2.default.createElement(
         'div',
         { className: 'input-group' },
-        _react2.default.createElement('input', { onChange: function onChange(event) {
+        _react2.default.createElement('input', { placeholder: 'Enter todo here', onChange: function onChange(event) {
             return _this2.handleTyping(event);
           }, value: this.state.typedText, type: 'text', className: 'form-control' }),
         _react2.default.createElement(

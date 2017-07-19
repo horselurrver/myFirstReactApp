@@ -28,7 +28,7 @@ export default class InputLine extends React.Component {
   render() {
     return (
       <div className="input-group">
-        <input onChange={(event) => this.handleTyping(event)} value={this.state.typedText} type="text" className="form-control"/>
+        <input placeholder="Enter todo here" onChange={(event) => this.handleTyping(event)} value={this.state.typedText} type="text" className="form-control"/>
           <span className="input-group-btn">
             <button onClick={this.handleSubmit} className="btn btn-info" type="button">Add todo</button>
           </span>
