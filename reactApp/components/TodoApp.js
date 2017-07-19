@@ -10,6 +10,15 @@ export default class TodoApp extends React.Component {
     };
     this.addTodo = this.addTodo.bind(this);
     this.removeTodo = this.removeTodo.bind(this);
+    this.toggleTodo = this.toggleTodo.bind(this);
+  }
+
+  toggleTodo(index) {
+    var arrayCopy = this.state.data.slice();
+    arrayCopy[index]['completed'] = !arrayCopy[index]['completed'];
+    this.setState({
+      data: arrayCopy
+    });
   }
 
   addTodo(task) {
@@ -37,7 +46,7 @@ export default class TodoApp extends React.Component {
         <div style={{width:'50%'}}>
           <InputLine submit={(task) => this.addTodo(task)}/>
           <br/>
-          <TodoList todoXClick={this.removeTodo} data={this.state.data}/>
+          <TodoList toggleTodo={this.toggleTodo} todoXClick={this.removeTodo} data={this.state.data}/>
         </div>
       </div>
     );
