@@ -1,7 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-let dummyData = ['Finish react-todo exercise', 'Do yoga', 'Practice zither'];
+let dummyData = [{taskText: "Finish react-todo exercise", completed: false},
+                 {taskText: "Do yoga", completed: true},
+                 {taskText: "Practice zither", completed: false}];
+
+var counter = 0;
 
 class InputLine extends React.Component {
   constructor(props) {
@@ -32,9 +36,10 @@ class Todo extends React.Component {
   }
 
   render() {
+    var task = this.props.task;
     return (
       <div>
-        <button className="btn btn-default">X</button> {this.props.task}
+        <button style={{display:'inline'}} className="btn btn-default">X</button> {task.completed ? <strike><p style={{display:'inline'}}>{task.taskText}</p></strike> : <p style={{display:'inline'}}>{task.taskText}</p>}
       </div>
     );
   }
@@ -53,7 +58,7 @@ class TodoList extends React.Component {
       <div className="panel panel-primary">
         <div className="panel-heading">Todo List</div>
         <div className="panel-body">
-          {dummyData.map((string) => <Todo task={string}/>)}
+          {dummyData.map((todoItem) => <Todo key={counter++} task={todoItem}/>)}
         </div>
       </div>
     );
