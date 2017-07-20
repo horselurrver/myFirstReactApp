@@ -7267,9 +7267,7 @@ var _TodoApp2 = _interopRequireDefault(_TodoApp);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var dummyData = [{ taskText: "Finish react-todo exercise", completed: false }, { taskText: "Do yoga", completed: true }, { taskText: "Practice zither", completed: false }];
-
-_reactDom2.default.render(_react2.default.createElement(_TodoApp2.default, { data: dummyData }), document.getElementById('root'));
+_reactDom2.default.render(_react2.default.createElement(_TodoApp2.default, null), document.getElementById('root'));
 
 /***/ }),
 /* 58 */
@@ -10507,7 +10505,7 @@ var TodoApp = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (TodoApp.__proto__ || Object.getPrototypeOf(TodoApp)).call(this, props));
 
     _this.state = {
-      data: _this.props.data
+      data: []
     };
     _this.addTodo = _this.addTodo.bind(_this);
     _this.removeTodo = _this.removeTodo.bind(_this);
@@ -10516,12 +10514,44 @@ var TodoApp = function (_React$Component) {
   }
 
   _createClass(TodoApp, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var thisThing = this;
+      _axios2.default.get(dbUrl + '/all').then(function (response) {
+        // Do whatever you want with the request's response in here
+        //  console.log('the response: ' + JSON.stringify(response['data']));
+        thisThing.setState({
+          data: response['data']
+        });
+      }).catch(function (error) {
+        // Do whatever you want in the event of an error in here
+        console.log(error);
+      });
+    }
+  }, {
     key: 'toggleTodo',
-    value: function toggleTodo(index) {
-      var arrayCopy = this.state.data.slice();
+    value: function toggleTodo(id) {
+      /*var arrayCopy = this.state.data.slice();
       arrayCopy[index]['completed'] = !arrayCopy[index]['completed'];
       this.setState({
         data: arrayCopy
+      });*/
+      var thisThing = this;
+      _axios2.default.post(dbUrl + '/toggle', {
+        id: id
+      }).then(function (response) {
+        // return entire updated response
+        var arrCopy = thisThing.state.data.slice();
+        for (var i = 0; i < arrCopy.length; i++) {
+          if (arrCopy[i]._id.toString() === id) {
+            arrCopy[i].completed = !arrCopy[i].completed;
+          }
+        }
+        thisThing.setState({
+          data: arrCopy
+        });
+      }).catch(function (error) {
+        console.log(error);
       });
     }
   }, {
@@ -10535,12 +10565,17 @@ var TodoApp = function (_React$Component) {
       this.setState({
         data: arrayCopy
       });*/
+      console.log('task to add: ' + task);
       var thisThing = this;
       _axios2.default.post(dbUrl + '/add', {
         task: task
       }).then(function (response) {
+        // return new task
         // Do whatever you want with the request's response in here
-        thisThing.setState({ todos: thisThing.state.data.concat(response.data) });
+        console.log(response);
+        thisThing.setState({
+          data: thisThing.state.data.concat(response.data)
+        });
       }).catch(function (error) {
         // Do whatever you want in the event of an error in here
         console.log(error);
@@ -10548,11 +10583,28 @@ var TodoApp = function (_React$Component) {
     }
   }, {
     key: 'removeTodo',
-    value: function removeTodo(index) {
-      var arrayCopy = this.state.data.slice();
+    value: function removeTodo(id) {
+      /*var arrayCopy = this.state.data.slice();
       arrayCopy.splice(index, 1);
       this.setState({
         data: arrayCopy
+      });*/
+      var thisThing = this;
+      _axios2.default.post(dbUrl + '/remove', {
+        id: id
+      }).then(function (response) {
+        // return entire new array
+        var arrCopy = [];
+        for (var i = 0; i < thisThing.state.data.length; i++) {
+          if (thisThing.state.data[i]._id.toString() !== id) {
+            arrCopy.push(Object.assign({}, thisThing.state.data[i]));
+          }
+        }
+        thisThing.setState({
+          data: arrCopy
+        });
+      }).catch(function (error) {
+        console.log(error);
       });
     }
   }, {
@@ -11556,10 +11608,7 @@ var Todo = function (_React$Component) {
   function Todo(props) {
     _classCallCheck(this, Todo);
 
-    var _this = _possibleConstructorReturn(this, (Todo.__proto__ || Object.getPrototypeOf(Todo)).call(this, props));
-
-    _this.state = {};
-    return _this;
+    return _possibleConstructorReturn(this, (Todo.__proto__ || Object.getPrototypeOf(Todo)).call(this, props));
   }
 
   _createClass(Todo, [{
@@ -11575,13 +11624,13 @@ var Todo = function (_React$Component) {
           'X'
         ),
         ' ',
-        task.completed ? _react2.default.createElement(
+        this.props.task.completed ? _react2.default.createElement(
           'strike',
           null,
           _react2.default.createElement(
             'p',
             { style: { display: 'inline' } },
-            task.taskText
+            this.props.task.taskText
           )
         ) : _react2.default.createElement(
           'p',
@@ -11590,8 +11639,8 @@ var Todo = function (_React$Component) {
         ),
         _react2.default.createElement(
           'button',
-          { onClick: this.props.toggleClick, style: { float: 'right' }, className: task.completed ? "btn btn-success" : "btn btn-warning" },
-          _react2.default.createElement('span', { className: task.completed ? "glyphicon glyphicon-ok" : "glyphicon glyphicon-hourglass" })
+          { onClick: this.props.toggleClick, style: { float: 'right' }, className: this.props.task.completed ? "btn btn-success" : "btn btn-warning" },
+          _react2.default.createElement('span', { className: this.props.task.completed ? "glyphicon glyphicon-ok" : "glyphicon glyphicon-hourglass" })
         )
       );
     }
@@ -11635,8 +11684,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var counter = 0;
-
 var TodoList = function (_React$Component) {
   _inherits(TodoList, _React$Component);
 
@@ -11666,11 +11713,11 @@ var TodoList = function (_React$Component) {
           'div',
           { className: 'panel-body' },
           this.props.data.map(function (todoItem, index) {
-            return _react2.default.createElement(_Todo2.default, { toggleClick: function toggleClick() {
-                return _this2.props.toggleTodo(index);
+            return _react2.default.createElement(_Todo2.default, { key: todoItem._id, toggleClick: function toggleClick() {
+                return _this2.props.toggleTodo(todoItem._id);
               }, xClick: function xClick() {
-                return _this2.props.todoXClick(index);
-              }, key: counter++, task: todoItem });
+                return _this2.props.todoXClick(todoItem._id);
+              }, task: todoItem });
           })
         )
       );

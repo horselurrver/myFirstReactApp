@@ -9,19 +9,53 @@ export default class TodoApp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: this.props.data
+      data: []
     };
     this.addTodo = this.addTodo.bind(this);
     this.removeTodo = this.removeTodo.bind(this);
     this.toggleTodo = this.toggleTodo.bind(this);
   }
 
-  toggleTodo(index) {
-    var arrayCopy = this.state.data.slice();
+  componentDidMount() {
+    var thisThing = this;
+    axios.get(dbUrl + '/all')
+      .then(function(response){
+    // Do whatever you want with the request's response in here
+      //  console.log('the response: ' + JSON.stringify(response['data']));
+        thisThing.setState({
+          data: response['data']
+        });
+      })
+      .catch(function(error){
+    // Do whatever you want in the event of an error in here
+        console.log(error);
+    });
+  }
+
+  toggleTodo(id) {
+    /*var arrayCopy = this.state.data.slice();
     arrayCopy[index]['completed'] = !arrayCopy[index]['completed'];
     this.setState({
       data: arrayCopy
-    });
+    });*/
+    var thisThing = this;
+    axios.post(dbUrl + '/toggle', {
+      id: id
+    })
+    .then(function(response) {// return entire updated response
+      var arrCopy = thisThing.state.data.slice();
+      for (var i = 0; i < arrCopy.length; i++) {
+        if (arrCopy[i]._id.toString() === id) {
+          arrCopy[i].completed = !arrCopy[i].completed;
+        }
+      }
+      thisThing.setState({
+        data: arrCopy
+      })
+    })
+    .catch(function(error) {
+      console.log(error);
+    })
   }
 
   addTodo(task) {
@@ -33,13 +67,17 @@ export default class TodoApp extends React.Component {
     this.setState({
       data: arrayCopy
     });*/
+    console.log('task to add: ' + task);
     var thisThing = this;
     axios.post(dbUrl + '/add', {
       task: task
       })
-      .then(function(response){
+      .then(function(response){// return new task
     // Do whatever you want with the request's response in here
-        thisThing.setState({ todos: thisThing.state.data.concat(response.data)});
+        console.log(response);
+        thisThing.setState({
+          data: thisThing.state.data.concat(response.data)
+        });
       })
       .catch(function(error){
     // Do whatever you want in the event of an error in here
@@ -47,12 +85,30 @@ export default class TodoApp extends React.Component {
       });
   }
 
-  removeTodo(index) {
-    var arrayCopy = this.state.data.slice();
+  removeTodo(id) {
+    /*var arrayCopy = this.state.data.slice();
     arrayCopy.splice(index, 1);
     this.setState({
       data: arrayCopy
-    });
+    });*/
+    var thisThing = this;
+    axios.post(dbUrl + '/remove', {
+      id: id
+    })
+      .then(function(response) { // return entire new array
+        var arrCopy = [];
+        for (var i = 0; i < thisThing.state.data.length; i++) {
+          if (thisThing.state.data[i]._id.toString() !== id) {
+            arrCopy.push(Object.assign({}, thisThing.state.data[i]));
+          }
+        }
+        thisThing.setState({
+          data: arrCopy
+        })
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
   }
 
   render() {
